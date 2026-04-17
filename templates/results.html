@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Results - RailGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 2.5em;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+        
+        /* Main Grid Layout */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        /* Detection Display Card */
+        .detection-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-badge {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-badge.processing {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .status-badge.complete {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        /* Media Container */
+        .media-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .detection-media {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 700px;
+            object-fit: contain;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .loading-overlay.hidden {
+            display: none;
+        }
+        
+        .spinner-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+        }
+        
+        .spinner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #667eea;
+            border-right: 4px solid #764ba2;
+            border-radius: 50%;
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border-top-color: #f093fb;
+            border-right-color: #f5576c;
+            animation-duration: 2s;
+            animation-direction: reverse;
+        }
+        
+        .loading-text {
+            font-size: 1.3em;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .loading-subtext {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+        }
+        
+        .progress-bar {
+            width: 200px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            animation: progress 2s ease-in-out infinite;
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 0%; }
+        }
+        
+        /* Console Sidebar */
+        .console-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* Console Card */
+        .console-card {
+            max-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .console-output {
+            background: #0a0e27;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-y: auto;
+            max-height: 400px;
+            min-height: 300px;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .console-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .console-output::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .console-output::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        .console-output::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+        
+        .console-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            animation: slideInConsole 0.3s ease;
+        }
+        
+        @keyframes slideInConsole {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .console-line:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .console-line.system {
+            border-left: 3px solid #4facfe;
+        }
+        
+        .console-line.garbage {
+            border-left: 3px solid #f5576c;
+            background: rgba(245, 87, 108, 0.05);
+        }
+        
+        .console-line.violence {
+            border-left: 3px solid #f093fb;
+            background: rgba(240, 147, 251, 0.05);
+        }
+        
+        .console-line.crowd {
+            border-left: 3px solid #4facfe;
+            background: rgba(79, 172, 254, 0.05);
+        }
+        
+        .console-line.success {
+            border-left: 3px solid #48bb78;
+        }
+        
+        .console-time {
+            color: #a0aec0;
+            font-size: 0.85em;
+            min-width: 70px;
+            flex-shrink: 0;
+        }
+        
+        .console-icon {
+            color: #667eea;
+            flex-shrink: 0;
+            font-size: 1.1em;
+        }
+        
+        .console-line.garbage .console-icon {
+            color: #f5576c;
+        }
+        
+        .console-line.violence .console-icon {
+            color: #f093fb;
+        }
+        
+        .console-line.crowd .console-icon {
+            color: #4facfe;
+        }
+        
+        .console-line.success .console-icon {
+            color: #48bb78;
+        }
+        
+        .console-text {
+            color: #e2e8f0;
+            flex: 1;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        
+        .console-detail {
+            color: #a0aec0;
+            font-size: 0.9em;
+            margin-top: 3px;
+            display: block;
+        }
+        
+        .console-badge {
+            background: rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .console-badge.high {
+            background: rgba(245, 87, 108, 0.3);
+            color: #f5576c;
+        }
+        
+        .console-badge.medium {
+            background: rgba(240, 147, 251, 0.3);
+            color: #f093fb;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+        }
+        
+        .info-value {
+            color: #fff;
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        .detection-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        /* Action Buttons */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .action-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .action-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .action-btn.danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+        }
+        
+        .action-btn.danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(245, 87, 108, 0.5);
+        }
+        
+        .action-btn.full {
+            grid-column: 1 / -1;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+        }
+        
+        /* Alerts */
+        .alert-card {
+            background: linear-gradient(135deg, rgba(245, 87, 108, 0.2) 0%, rgba(240, 147, 251, 0.2) 100%);
+            border: 1px solid rgba(245, 87, 108, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-icon {
+            font-size: 1.5em;
+            color: #f5576c;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .alert-message {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo">🚂</div>
+                <div>
+                    <h1>RailGuard AI</h1>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 0.9em;">Detection Results</p>
+                </div>
+            </div>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Upload</span>
+            </a>
+        </div>
+        
+        <!-- Main Results Grid -->
+        <div class="results-grid" style="grid-template-columns: 2fr 1fr;">
+            <!-- Detection Display -->
+            <div class="detection-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        Live Detection Feed
+                    </h2>
+                    <div class="status-badge processing" id="statusBadge">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Processing</span>
+                    </div>
+                </div>
+                
+                <div class="media-container">
+                    <img class="detection-media" id="detectionMedia" src="/video_feed?file={{ file_path }}&stream_id={{ stream_id }}&detection_type={{ detection_type }}" alt="Detection Result">
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                            <div class="spinner"></div>
+                        </div>
+                        <p class="loading-text">Analyzing Media...</p>
+                        <p class="loading-subtext">AI models processing your content</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Console Log Sidebar -->
+            <div class="console-sidebar">
+                <!-- Live Console -->
+                <div class="info-card console-card">
+                    <div class="card-header" style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                        <h3 style="display: flex; justify-content: space-between; align-items: center; margin: 0;">
+                            <span><i class="fas fa-terminal"></i> Detection Console</span>
+                            <button onclick="clearConsole()" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.85em; transition: all 0.3s;">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </h3>
+                    </div>
+                    <div class="console-output" id="consoleOutput">
+                        <div class="console-line system">
+                            <span class="console-time">[00:00:00]</span>
+                            <span class="console-icon"><i class="fas fa-info-circle"></i></span>
+                            <span class="console-text">Detection system initialized...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detection Info -->
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Detection Info</h3>
+                    <div class="info-item">
+                        <span class="info-label">Detection Type</span>
+                        <span class="info-value">
+                            <span class="detection-badge">
+                                <i class="fas fa-{{ 'trash' if detection_type == 'garbage' else 'exclamation-triangle' if detection_type == 'violence' else 'users' }}"></i>
+                                {{ detection_type.capitalize() }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Media Type</span>
+                        <span class="info-value">{{ media_type.capitalize() }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">File Name</span>
+                        <span class="info-value" style="font-size: 0.85em;">{{ file_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value" id="statusText" style="color: #f5576c;">Processing</span>
+                    </div>
+                </div>
+                
+                <!-- AI Models Used -->
+                <div class="info-card">
+                    <h3><i class="fas fa-robot"></i> AI Models</h3>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-trash" style="color: #667eea;"></i> Garbage Detection
+                        </span>
+                        <span class="info-value" style="color: #4facfe;">YOLOv8</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-exclamation-triangle" style="color: #f5576c;"></i> Violence Detection
+                        </span>
+                        <span class="info-value" style="color: #4facfe;">YOLOv8</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-users" style="color: #f093fb;"></i> Crowd Detection
+                        </span>
+                        <span class="info-value" style="color: #4facfe;">YOLOv3</span>
+                    </div>
+                </div>
+                
+
+                
+                <!-- Action Buttons -->
+                <div class="info-card">
+                    <h3><i class="fas fa-tools"></i> Actions</h3>
+                    <div class="action-grid">
+                        <button class="action-btn primary" onclick="downloadResult()">
+                            <i class="fas fa-download"></i>
+                            <span>Download</span>
+                        </button>
+                        <button class="action-btn secondary" onclick="shareResult()">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share</span>
+                        </button>
+                        <button class="action-btn secondary" onclick="window.print()">
+                            <i class="fas fa-print"></i>
+                            <span>Print</span>
+                        </button>
+                        <button class="action-btn danger" onclick="stopDetection()">
+                            <i class="fas fa-stop"></i>
+                            <span>Stop</span>
+                        </button>
+                        <a href="/" class="action-btn primary full">
+                            <i class="fas fa-plus"></i>
+                            <span>Analyze Another File</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Alert Card (Optional) -->
+                {% if detection_type in ['violence', 'crowd'] %}
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <i class="fas fa-exclamation-triangle alert-icon"></i>
+                        <span class="alert-title">Alert Notice</span>
+                    </div>
+                    <p class="alert-message">
+                        {% if detection_type == 'violence' %}
+                        High-priority detection active. Any violent incidents will be flagged immediately for security response.
+                        {% else %}
+                        Monitoring crowd density. Alerts will be triggered if crowd size exceeds safe thresholds.
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Hide loading overlay when media loads
+        const detectionMedia = document.getElementById('detectionMedia');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const streamId = '{{ stream_id }}';
+        let statsInterval;
+        
+        detectionMedia.onload = function() {
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                statusBadge.className = 'status-badge complete';
+                statusBadge.innerHTML = '<i class="fas fa-check-circle"></i><span>Complete</span>';
+                statusText.textContent = 'Complete';
+                statusText.style.color = '#4facfe';
+            }, 1000);
+        };
+        
+        detectionMedia.onerror = function() {
+            loadingOverlay.innerHTML = `
+                <i class="fas fa-exclamation-circle" style="font-size: 3em; color: #f5576c; margin-bottom: 20px;"></i>
+                <p class="loading-text">Error Loading Media</p>
+                <p class="loading-subtext">Please try uploading again</p>
+            `;
+            statusBadge.className = 'status-badge processing';
+            statusBadge.innerHTML = '<i class="fas fa-times-circle"></i><span>Error</span>';
+            statusText.textContent = 'Error';
+            statusText.style.color = '#f5576c';
+        };
+        
+
+        
+        function downloadResult() {
+            const link = document.createElement('a');
+            link.href = detectionMedia.src;
+            link.download = 'railguard_detection_result_' + Date.now() + '.jpg';
+            link.click();
+        }
+        
+        function shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'RailGuard AI Detection Result',
+                    text: 'Check out this detection result from RailGuard AI',
+                    url: window.location.href
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                alert('Share functionality not supported in this browser');
+            }
+        }
+        
+        function stopDetection() {
+            if (confirm('Are you sure you want to stop the detection?')) {
+                const formData = new FormData();
+                formData.append('stream_id', '{{ stream_id }}');
+                
+                fetch('/stop', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);
+                    window.location.href = '/';
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+        
+        // Log fetching and display
+        const consoleOutput = document.querySelector('.console-output');
+        let lastLogCount = 0;
+        
+        function updateLogs() {
+            fetch('/logs/' + streamId)
+                .then(response => response.json())
+                .then(logs => {
+                    // Only update if new logs arrived
+                    if (logs.length > lastLogCount) {
+                        // Clear console and rebuild
+                        consoleOutput.innerHTML = '';
+                        
+                        logs.forEach(log => {
+                            const logLine = document.createElement('div');
+                            logLine.className = 'console-line console-' + log.type;
+                            
+                            const time = document.createElement('span');
+                            time.className = 'log-time';
+                            time.textContent = log.time;
+                            
+                            const message = document.createElement('span');
+                            message.className = 'log-message';
+                            message.textContent = log.message;
+                            
+                            logLine.appendChild(time);
+                            logLine.appendChild(message);
+                            
+                            if (log.details) {
+                                const details = document.createElement('span');
+                                details.className = 'log-details';
+                                details.textContent = ' • ' + log.details;
+                                logLine.appendChild(details);
+                            }
+                            
+                            consoleOutput.appendChild(logLine);
+                        });
+                        
+                        // Auto-scroll to bottom
+                        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                        lastLogCount = logs.length;
+                    }
+                })
+                .catch(error => console.error('Error fetching logs:', error));
+        }
+        
+        // Start log polling every 1 second
+        setInterval(updateLogs, 1000);
+        
+        // Initial log fetch
+        updateLogs();
+    </script>
+</body>
+</html>
