@@ -14,6 +14,7 @@ Features
 * Live video stream processing
 * Flask-based web interface
 * Scalable for smart surveillance systems
+* Real-time monitoring 
 ⸻
 Tech Stack
 AI / ML
