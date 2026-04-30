@@ -16,12 +16,11 @@ Features
 * Scalable for smart surveillance systems
 ⸻
 Tech Stack
-
 AI / ML
 * PyTorch
 * YOLOv8 (Ultralytics)
 * Scikit-learn
-
+* 
 Computer Vision
 * OpenCV
 
