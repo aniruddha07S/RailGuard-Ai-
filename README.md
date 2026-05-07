@@ -92,25 +92,7 @@ System Workflow
 
 Project Structure
 
-RailGuard-AI/
-│── app.py                  # Flask web application
-│── detection_system.py     # Core detection logic
-│── garbage_detection.py    # Additional detection module
-│── models/
-│   ├── best.pt             # Trained model
-│   ├── last.pt             # Latest checkpoint
-│   ├── yolov8s.pt          # Pretrained model
-│── notebooks/
-│   ├── train_yolov8.ipynb
-│   ├── violence_detection.ipynb
-│── config/
-│   ├── yolov3.cfg
-│   ├── coco.names
-│── static/                 # CSS, JS, assets
-│── templates/              # HTML templates
-│── requirements.txt
-│── README.md
-
+The project structure is organized into multiple modules for efficient development and maintenance. The app.py file contains the main Flask web application, while detection_system.py handles the core detection logic of the system. An additional module, garbage_detection.py, is included for extended detection functionality. The models directory stores trained and pretrained YOLOv8 model files such as best.pt, last.pt, and yolov8s.pt. The notebooks folder contains Jupyter notebooks used for model training and experimentation, including YOLOv8 training and violence detection notebooks. Configuration files such as yolov3.cfg and coco.names are stored in the config directory. The static folder contains CSS, JavaScript, and other frontend assets, while the templates folder stores HTML templates used for the Flask dashboard interface. Additional project files such as requirements.txt and README.md are included for dependency management and project documentation.
 ⸻
 
 Installation
