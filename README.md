@@ -186,6 +186,8 @@ Research & Innovation Scope
 * Deep learning for violence detection
 * Automated public safety analytics
 * AI-driven smart transportation security systems
+* Human activity forecasting using temporal deep learning models
+* Cybersecure AI surveillance architecture for preventing unauthorized access
 
 ⸻
 
