@@ -141,6 +141,8 @@ Use Cases
 * Metro station monitoring
 * Shopping mall security
 * Traffic and public area monitoring
+* AI-powered perimeter intrusion detection
+* Smart transportation hub security
 
 ⸻
 
