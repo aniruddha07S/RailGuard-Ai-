@@ -99,7 +99,7 @@ Installation
 
 1. Clone the Repository
 
-git clone https://github.com/your-username/railguard-ai.git
+git clone https://github.com/aniruddha07S/RailGuard-Ai-.git
 cd railguard-ai
 
 2. Install Dependencies
